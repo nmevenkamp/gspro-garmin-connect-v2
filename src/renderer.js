@@ -14,13 +14,32 @@ window.addEventListener('DOMContentLoaded', () => {
             }
 
             const sendTestShotButton = document.querySelector('#send-test-shot')
+            const ballSpeedInput = document.querySelector('#ball-speed')
+            const spinAxisInput = document.querySelector('#spin-axis')
+            const vlaInput = document.querySelector('#vla')
+            const spinInput = document.querySelector('#spin')
+            const hlaInput = document.querySelector('#hla')
+            const carryInput = document.querySelector('#carry')
 
             sendTestShotButton.addEventListener('click', () => {
                 if (!gsProConnected) {
                     return
                 }
                 timeout = true
-                port.postMessage('sendTestShot')
+
+
+
+                port.postMessage({
+                    action: 'sendTestShot',
+                    ballData: {
+                        Speed: ballSpeedInput.value,
+                        SpinAxis: spinAxisInput.value,
+                        TotalSpin: spinInput.value,
+                        HLA: hlaInput.value,
+                        VLA: vlaInput.value,
+                        CarryDistance: carryInput.value,
+                    }
+                })
 
                 sendTestShotButton.classList.remove('send-test-shot')
                 sendTestShotButton.classList.add('send-test-shot-disabled')
@@ -29,6 +48,21 @@ window.addEventListener('DOMContentLoaded', () => {
                     sendTestShotButton.classList.add('send-test-shot')
                     timeout = false
                 }, 8000)
+            })
+
+            const sendLMStatusButton = document.querySelector('#send-lm-status')
+            const lmReadyCheckbox = document.querySelector('#lm-ready')
+            const ballDetectedCheckbox = document.querySelector('#ball-detected')
+            sendLMStatusButton.addEventListener('click', () => {
+                if (!gsProConnected) {
+                    return
+                }
+
+                port.postMessage({
+                    action: 'sendLMStatus',
+                    lmReady: lmReadyCheckbox.checked,
+                    ballDetected: ballDetectedCheckbox.checked,
+                })
             })
         }
     }

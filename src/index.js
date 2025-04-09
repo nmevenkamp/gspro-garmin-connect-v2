@@ -14,8 +14,8 @@ if (require('electron-squirrel-startup')) {
 
 const startApp = () => {
     const mainWindow = new BrowserWindow({
-        width: 675,
-        height: 500,
+        width: 800,
+        height: 600,
         webPreferences: {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),

@@ -122,40 +122,43 @@ class GsProConnect {
         })
     }
 
+    sendLaunchMonitorStatus(lmReady, ballDetected) {
+        const APIData = {
+            DeviceID: this.deviceID,
+            Units: this.units,
+            ShotNumber: this.shotNumber,
+            APIversion: this.apiVersion,
+            ShotDataOptions: {
+                ContainsBallData: false,
+                ContainsClubData: false,
+                LaunchMonitorIsReady: lmReady,
+                LaunchMonitorBallDetected: lmReady && ballDetected,
+                IsHeartBeat: false,                                   // not required
+            },
+        }
+
+        this.socket.write(JSON.stringify(APIData));
+    }
+
     launchBall(ballData, clubData) {
         const APIData = {
             DeviceID: this.deviceID,
-            Units: this.unit,
+            Units: this.units,
             ShotNumber: this.shotNumber,
             APIversion: this.apiVersion,
-            BallData: {
-                Speed: ballData.ballSpeed,
-                SpinAxis: ballData.spinAxis,
-                TotalSpin: ballData.totalSpin,
-                HLA: ballData.hla,
-                VLA: ballData.vla,
-            },
+            BallData: ballData,
             ShotDataOptions: {
                 ContainsBallData: true,
                 ContainsClubData: false,
+                LaunchMonitorIsReady: true, 		// not required
+                LaunchMonitorBallDetected: true,    // not required
+                IsHeartBeat: false,                 // not required
             },
         }
 
         if (this.sendClubData) {
             APIData.ShotDataOptions.ContainsClubData = true
-
-            APIData.ClubData = {
-                Speed: clubData.speed,
-                AngleOfAttack: clubData.angleofattack,
-                FaceToTarget: clubData.facetotarget,
-                Lie: clubData.lie,
-                Loft: clubData.loft,
-                Path: clubData.path,
-                SpeedAtImpact: clubData.speedatimpact,
-                VerticalFaceImpact: clubData.verticalfaceimpact,
-                HorizontalFaceImpact: clubData.horizontalfaceimpact,
-                ClosureRate: clubData.closurerate,
-            }
+            APIData.ClubData = clubData
         }
 
         this.socket.write(JSON.stringify(APIData))

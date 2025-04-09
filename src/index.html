@@ -43,22 +43,72 @@
             <div class="messages-window">
                 <div class="messages-window-overlay"></div>
                 <p class="message-text">
-                    <span class="message-text-title">R10 🔅 00:00:</span
-                    ><span class="message-content">Info messages appear here...</span>
+                    <span class="message-text-title">R10 🔅 00:00:</span>
+                    <span class="message-content">Info messages appear here...</span>
                 </p>
                 <p class="message-text">
-                    <span class="message-text-title">R10 🔅 00:00:</span
-                    ><span class="message-content message-text-red">Red are bad...</span>
+                    <span class="message-text-title">R10 🔅 00:00:</span>
+                    <span class="message-content message-text-red">Red are bad...</span>
                 </p>
                 <p class="message-text">
-                    <span class="message-text-title">R10 🔅 00:00:</span
-                    ><span class="message-content message-text-green">Green are good...</span>
+                    <span class="message-text-title">R10 🔅 00:00:</span>
+                    <span class="message-content message-text-green">Green are good...</span>
                 </p>
             </div>
-            <div id="send-test-shot" class="send-test-shot-disabled"><p>Send Test Shot</p></button>
+            <table class="send-test-messages-table">
+                <tr>
+                    <td>
+                        <table class="params-table">
+                            <tr>
+                                <td>
+                                    <input type="number" id="ball-speed" name="ball-speed" value="98.5">
+                                    <label for="ball-speed">Ball Speed</label><br>
+                                </td>
+                                <td>
+                                    <input type="number" id="spin-axis" name="spin-axis" value="-10.2">
+                                    <label for="spin-axis">Spin Axis</label><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="number" id="vla" name="vla" value="13.5">
+                                    <label for="vla">VLA</label><br>
+                                </td>
+                                <td>
+                                    <input type="number" id="spin" name="spin" value="2350.2">
+                                    <label for="spin">Spin(TS)</label><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="number" id="hla" name="hla" value="2.1">
+                                    <label for="hla">HLA</label><br>
+                                </td>
+                                <td>
+                                    <input type="number" id="carry" name="carry" value="138.3">
+                                    <label for="carry">Carry(yds)</label><br>
+                                </td>
+                            </tr>
+                        </table>
+                        <br/>
+                        <button id="send-test-shot" class="send-test-shot-disabled"><p>Send Test Shot</p></button>
+                    </td>
+                    <td>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="lm-ready" name="lm-ready" value="0">
+                            <label for="lm-ready">Launch Monitor ready</label>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="ball-detected" name="ball-detected" value="0">
+                            <label for="ball-detected">Ball detected</label>
+                        </div>
+                        <button id="send-lm-status" class="send-test-shot"><p>Send LM Status</p></button>
+                    </td>
+                </tr>
+            </table>
         </div>
         <p class="credit-text">
-            v1.3.5 <a href="https://travislang.io" target="_blank">@reactive</a>
+            v1.4.0 <a href="https://travislang.io" target="_blank">@reactive</a>
         </p>
         <script src="renderer.js"></script>
     </body>

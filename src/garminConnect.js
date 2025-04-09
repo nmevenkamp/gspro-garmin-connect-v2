@@ -9,6 +9,8 @@ class GarminConnect {
     constructor(ipcPort, gsProConnect) {
         this.server = net.createServer();
         this.client = null;
+        this.ready = true;  // TODO: false as default
+        this.ballDetected = true;  // TODO: false as default
         this.ballData = {};
         this.clubData = {};
         this.clubType = '7Iron';
@@ -19,8 +21,12 @@ class GarminConnect {
         this.intervalID = null; //heatbeat ID
 
         ipcPort.on('message', (event) => {
-            if (event.data === 'sendTestShot') {
-                this.sendTestShot();
+            if (event.data && event.data.action === 'sendTestShot') {
+                this.sendTestShot(event.data.ballData);
+            } else if (event.data && event.data.action === 'sendLMStatus') {
+                this.setReady(event.data.lmReady);
+                this.setBallDetected(event.data.ballDetected);
+                this.sendLMStatus();
             } else if (event.data && event.data.type === 'setIP') {
                 this.setNewIP(event.data.data);
             }
@@ -241,16 +247,21 @@ class GarminConnect {
         this.client.write(SimMessages.get_success_message('SetClubType'));
     }
 
-    sendTestShot() {
-        this.ballData = {
-            ballSpeed: 98.5,
-            spinAxis: -10.2,
-            totalSpin: 2350.2,
-            hla: 0.0,
-            vla: 13.5,
-        };
-
+    sendTestShot(ballData) {
+        this.ballData = ballData;
         this.sendShot();
+    }
+
+    sendLMStatus() {
+        this.sendStatus();
+    }
+
+    setReady(ready) {
+        this.ready = ready;
+    }
+
+    setBallDetected(ballDetected) {
+        this.ballDetected = ballDetected;
     }
 
     setBallData(ballData) {
@@ -260,11 +271,14 @@ class GarminConnect {
         }
         spinAxis *= -1;
         this.ballData = {
-            ballSpeed: ballData.BallSpeed,
-            spinAxis: spinAxis,
-            totalSpin: ballData.TotalSpin,
-            hla: ballData.LaunchDirection,
-            vla: ballData.LaunchAngle,
+            Speed: ballData.BallSpeed,
+            SpinAxis: spinAxis,
+            TotalSpin: ballData.TotalSpin,
+            BackSpin: 0.0, // TODO
+            SideSpin: 0.0, // TODO
+            HLA: ballData.LaunchDirection,
+            VLA: ballData.LaunchAngle,
+            CarryDistance: 0.0, // TODO
         };
 
         this.ipcPort.postMessage({
@@ -277,16 +291,16 @@ class GarminConnect {
 
     setClubData(clubData) {
         this.clubData = {
-            speed: clubData.ClubHeadSpeed,
-            angleofattack: 0.0,
-            facetotarget: clubData.ClubAngleFace,
-            lie: 0.0,
-            loft: 0.0,
-            path: clubData.ClubAnglePath,
-            speedatimpact: clubData.ClubHeadSpeed,
-            verticalfaceimpact: 0.0,
-            horizontalfaceimpact: 0.0,
-            closurerate: 0.0,
+            Speed: clubData.ClubHeadSpeed,
+            AngleOfAttack: 0.0,
+            FaceToTarget: clubData.ClubAngleFace,
+            Lie: 0.0,
+            Loft: 0.0,
+            Path: clubData.ClubAnglePath,
+            SpeedAtImpact: clubData.ClubHeadSpeed,
+            VerticalFaceImpact: 0.0,
+            HorizontalFaceImpact: 0.0,
+            ClosureRate: 0.0,
         };
 
         this.ipcPort.postMessage({
@@ -328,6 +342,10 @@ class GarminConnect {
                 ready: true,
             });
         }, 1000);
+    }
+
+    async sendStatus() {
+        this.gsProConnect.sendLaunchMonitorStatus(this.ready, this.ballDetected);
     }
 }
 
