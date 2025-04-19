@@ -30,6 +30,7 @@ const startApp = () => {
 
     const gsProConnect = new GsProConnect(port2)
     const garminConnect = new GarminConnect(port2, gsProConnect)
+    gsProConnect.setGarminConnect(garminConnect)
 
     mainWindow.webContents.postMessage('main-port', null, [port1])
 

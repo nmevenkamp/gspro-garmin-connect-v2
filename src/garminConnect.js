@@ -20,6 +20,8 @@ class GarminConnect {
         this.localIP = localIP;
         this.pingTimeout = false;
         this.intervalID = null; //heatbeat ID
+        this.gsProShotReceived = false;
+        this.launchTimeoutID = null;
 
         ipcPort.on('message', (event) => {
             if (event.data && event.data.action === 'sendTestShot') {
@@ -257,6 +259,11 @@ class GarminConnect {
         this.client.write(SimMessages.get_success_message('SetClubType'));
     }
 
+    setClubType(clubType) {
+        this.clubType = clubType;
+        this.client.write(SimMessages.get_shot_complete_message(this.clubType));
+    }
+
     sendTestShot() {
         this.sendShot();
     }
@@ -300,7 +307,7 @@ class GarminConnect {
         });
 
         this.client.write(SimMessages.get_success_message('SetBallData'));
-    }
+    }j
 
     setClubData(clubData) {
         this.clubData = {
@@ -325,6 +332,7 @@ class GarminConnect {
     }
 
     async sendShot() {
+        this.gsProShotReceived = false;
         this.ipcPort.postMessage({
             type: 'gsProShotStatus',
             ready: false,
@@ -334,27 +342,73 @@ class GarminConnect {
         if (this.client) {
             this.client.write(SimMessages.get_success_message('SendShot'));
             setTimeout(() => {
-                this.client.write(SimMessages.get_shot_complete_message());
+                this.client.write(SimMessages.get_shot_complete_message(this.clubType));
             }, 300);
             setTimeout(() => {
                 this.client.write(SimMessages.get_sim_command('Disarm'));
             }, 700);
-            setTimeout(() => {
-                this.client.write(SimMessages.get_sim_command('Arm'));
-            }, 1000);
+        }
+        this.launchTimeoutID = setTimeout(() => this.handleShotTimeOut(), 3000);
+    }
+
+    setShotReceived(shotReceived) {
+        this.gsProShotReceived = shotReceived;
+        this.ipcPort.postMessage({
+            type: 'gsProMessage',
+            message: 'GSPro: shot received.',
+            level: 'success',
+        });
+    }
+
+    setShotFinished() {
+        if (this.client) {
+            this.client.write(SimMessages.get_sim_command('Arm'));
         }
 
+        if (this.launchTimeoutID != null) {
+            clearTimeout(this.launchTimeoutID);
+            this.launchTimeoutID = null;
+        }
+
+        this.ipcPort.postMessage({
+            type: 'gsProMessage',
+            message: 'GSPro: shot finished.',
+            level: 'success',
+        });
+        this.ipcPort.postMessage({
+            type: 'gsProShotStatus',
+            ready: true,
+        });
+    }
+
+    handleShotTimeOut() {
+        if (this.gsProShotReceived) {
+            return;
+        }
+
+        if (this.client) {
+            this.client.write(SimMessages.get_sim_command('Arm'));
+        }
+
+        this.ipcPort.postMessage({
+            type: 'gsProMessage',
+            message: 'GSPro failed to receive the shot!',
+            level: 'error',
+        });
+        this.ipcPort.postMessage({
+            type: 'gsProShotStatus',
+            ready: true,
+        });
+
+        this.gsProConnect.handleDisconnect();
+        this.ipcPort.postMessage({
+            type: 'GSProMessage',
+            message: 'Error with GSPro connection.  Trying to reconnect...',
+        })
         setTimeout(() => {
-            this.ipcPort.postMessage({
-                type: 'gsProMessage',
-                message: '💯 Shot successful 💯',
-                level: 'success',
-            });
-            this.ipcPort.postMessage({
-                type: 'gsProShotStatus',
-                ready: true,
-            });
-        }, 1000);
+            console.log('reconnecting')
+            this.gsProConnect.connectSocket()
+        }, 1000)
     }
 
     async sendStatus() {

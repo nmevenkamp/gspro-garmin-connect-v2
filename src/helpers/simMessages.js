@@ -36,36 +36,39 @@ class simMessages {
         return JSON.stringify(message)
     }
 
-    static get_shot_complete_message() {
+    static get_shot_complete_message(clubType) {
+        if (clubType == null)
+            clubType = '7Iron';
+
         const message = {
             Details: {
-                Apex: 62.2087860107422,
+                Apex: 0,
                 BallData: {
-                    BackSpin: 4690.28662109375,
-                    BallSpeed: 151.587356567383,
-                    LaunchAngle: 17.7735958099365,
-                    LaunchDirection: -5.00650501251221,
-                    SideSpin: -542.832092285156,
-                    SpinAxis: 353.398223876953,
-                    TotalSpin: 4721.59423828125,
+                    BackSpin: 0,
+                    BallSpeed: 0,
+                    LaunchAngle: 0,
+                    LaunchDirection: 0,
+                    SideSpin: 0,
+                    SpinAxis: 0,
+                    TotalSpin: 0,
                 },
                 BallInHole: false,
-                BallLocation: 'Fringe',
-                CarryDeviationAngle: 357.429321289063,
-                CarryDeviationFeet: -19.5566101074219,
-                CarryDistance: 436.027191162109,
+                BallLocation: 'Fairway',
+                CarryDeviationAngle: 0,
+                CarryDeviationFeet: 0,
+                CarryDistance: 0,
                 ClubData: {
-                    ClubAngleFace: -2.42121529579163,
-                    ClubAnglePath: -10.2835702896118,
-                    ClubHeadSpeed: 110.317367553711,
-                    ClubHeadSpeedMPH: 75.2163848876953,
-                    ClubType: '7Iron',
-                    SmashFactor: 1.37410235404968,
+                    ClubAngleFace: 0,
+                    ClubAnglePath: 0,
+                    ClubHeadSpeed: 0,
+                    ClubHeadSpeedMPH: 0,
+                    ClubType: clubType,
+                    SmashFactor: 0,
                 },
-                DistanceToPin: 122.404106140137,
-                TotalDeviationAngle: 356.053466796875,
-                TotalDeviationFeet: -32.0723648071289,
-                TotalDistance: 465.995697021484,
+                DistanceToPin: 0,
+                TotalDeviationAngle: 0,
+                TotalDeviationFeet: 0,
+                TotalDistance: 0,
             },
             SubType: 'ShotComplete',
             Type: 'SimCommand',

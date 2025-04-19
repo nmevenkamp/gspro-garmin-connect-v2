@@ -1,5 +1,6 @@
 const net = require('net')
 const ENV = require('./env')
+const GarminConnect = require('./garminConnect');
 
 const TIMEOUT_MS = 5000
 
@@ -13,10 +14,18 @@ class GsProConnect {
         this.socket = null
         this.ipcPort = ipcPort
 
+        this.garminConnect = null;
+
         this.connectSocket()
     }
 
+    setGarminConnect(garminConnect) {
+        this.garminConnect = garminConnect;
+    }
+
     connectSocket() {
+        // TODO: it happens that connections is supposedly established, but GSPro does not react!
+
         this.ipcPort.postMessage({
             type: 'gsProStatus',
             status: 'connecting',
@@ -126,14 +135,14 @@ class GsProConnect {
 
         switch (data.Code) {
             case 200:
-                this.ipcPort.postMessage({
-                    type: 'gsProShotReceived',
-                });
+                this.garminConnect.setShotReceived(true);
+                break;
+            case 201:
+                // TODO: map between GSPro club and Garmin Club
+                this.garminConnect.setClubType(data.Club);
                 break;
             case 202:
-                this.ipcPort.postMessage({
-                    type: 'gsProReady',
-                });
+                this.garminConnect.setShotFinished();
                 break;
             default:
                 console.log('unknown code!', data.Code);

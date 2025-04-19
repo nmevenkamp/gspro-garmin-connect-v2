@@ -97,10 +97,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 setIPOptions(data.data, true)
             } else if (data.type === 'setIP') {
                 setIP(data.data)
-            } else if (data.type === 'gsProShotReceived') {
-                onGSProShotReceived();
-            } else if (data.type === 'gsProReady') {
-                onGSProReady();
             }
         }
     }
@@ -181,17 +177,17 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function onGSProShotReceived() {
-        const sendTestShotButton = document.querySelector('#send-test-shot')
-        sendTestShotButton.classList.remove('send-test-shot')
-        sendTestShotButton.classList.add('send-test-shot-disabled')
-    }
-
-    function onGSProReady() {
-        const sendTestShotButton = document.querySelector('#send-test-shot')
-        sendTestShotButton.classList.remove('send-test-shot-disabled')
-        sendTestShotButton.classList.add('send-test-shot')
-    }
+    // function onGSProShotReceived() {
+    //     const sendTestShotButton = document.querySelector('#send-test-shot')
+    //     sendTestShotButton.classList.remove('send-test-shot')
+    //     sendTestShotButton.classList.add('send-test-shot-disabled')
+    // }
+    //
+    // function onGSProReady() {
+    //     const sendTestShotButton = document.querySelector('#send-test-shot')
+    //     sendTestShotButton.classList.remove('send-test-shot-disabled')
+    //     sendTestShotButton.classList.add('send-test-shot')
+    // }
 
     function printMessage(system, message, level) {
         const mw = document.querySelector('.messages-window')
@@ -223,15 +219,23 @@ window.addEventListener('DOMContentLoaded', () => {
     function updateShotStatus(ready) {
         const shotReadyText = document.querySelector('.shot-status')
         if (ready) {
-            shotReadyText.innerHTML = 'Ready For Shot  💣'
+            shotReadyText.innerHTML = 'Ready For Shot'
 
             shotReadyText.classList.remove('message-text-red')
             shotReadyText.classList.add('message-text-green')
+
+            const sendTestShotButton = document.querySelector('#send-test-shot')
+            sendTestShotButton.classList.remove('send-test-shot-disabled')
+            sendTestShotButton.classList.add('send-test-shot')
         } else {
             shotReadyText.innerHTML = 'Wait ✋'
 
             shotReadyText.classList.remove('message-text-green')
             shotReadyText.classList.add('message-text-red')
+
+            const sendTestShotButton = document.querySelector('#send-test-shot')
+            sendTestShotButton.classList.remove('send-test-shot')
+            sendTestShotButton.classList.add('send-test-shot-disabled')
         }
     }
 })
