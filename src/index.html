@@ -86,7 +86,18 @@
                                 </td>
                                 <td>
                                     <input type="number" id="carry" name="carry" value="138.3">
-                                    <label for="carry">Carry(yds)</label><br>
+                                    <label for="carry">Carry</label><br>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                </td>
+                                <td>
+                                    <select id="units" name="units">
+                                        <option value="Yards">Yards</option>
+                                        <option value="Meters">Meters</option>
+                                    </select>
+                                    <label for="units">Units</label><br>
                                 </td>
                             </tr>
                         </table>
@@ -102,7 +113,7 @@
                             <input type="checkbox" id="ball-detected" name="ball-detected" value="0">
                             <label for="ball-detected">Ball detected</label>
                         </div>
-                        <button id="send-lm-status" class="send-test-shot"><p>Send LM Status</p></button>
+                        <button id="send-test-status" class="send-test-shot"><p>Send Test Status</p></button>
                     </td>
                 </tr>
             </table>

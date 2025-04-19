@@ -261,7 +261,7 @@ a {
     display: block;
     margin: auto;
 }
-#send-lm-status {
+#send-test-status {
     margin-top: 40px;
 }
 .send-test-messages-table td:first-child {
@@ -290,6 +290,11 @@ a {
     color: lightgray;
     font-size: 14px;
     display: inline-block;
+}
+.send-test-messages-table select {
+    font-size: 14px;
+    width: 80px;
+    background-color: lightgray;
 }
 .params-table td {
     padding: 2px;

@@ -9,8 +9,9 @@ class GarminConnect {
     constructor(ipcPort, gsProConnect) {
         this.server = net.createServer();
         this.client = null;
-        this.ready = true;  // TODO: false as default
-        this.ballDetected = true;  // TODO: false as default
+        this.units = "Yards";
+        this.ready = false;
+        this.ballDetected = false;
         this.ballData = {};
         this.clubData = {};
         this.clubType = '7Iron';
@@ -22,11 +23,14 @@ class GarminConnect {
 
         ipcPort.on('message', (event) => {
             if (event.data && event.data.action === 'sendTestShot') {
-                this.sendTestShot(event.data.ballData);
-            } else if (event.data && event.data.action === 'sendLMStatus') {
+                this.setUnits(event.data.units);
+                this.ballData = event.data.ballData;
+                this.sendTestShot();
+            } else if (event.data && event.data.action === 'sendTestStatus') {
+                this.setUnits(event.data.units);
                 this.setReady(event.data.lmReady);
                 this.setBallDetected(event.data.ballDetected);
-                this.sendLMStatus();
+                this.sendTestStatus();
             } else if (event.data && event.data.type === 'setIP') {
                 this.setNewIP(event.data.data);
             }
@@ -103,6 +107,8 @@ class GarminConnect {
     }
 
     handleIncomingData(data) {
+        console.log('incoming message from R10:', data);
+
         switch (data.Type) {
             case 'Handshake':
                 this.client.write(SimMessages.get_handshake_message(1));
@@ -129,11 +135,14 @@ class GarminConnect {
                 this.sendShot();
                 break;
             default:
-                console.log('no match', data.Type);
+                console.log('unknown type!', data.Type);
         }
     }
 
     handleDisconnect() {
+        this.ready = false;
+        this.sendStatus();
+
         this.client.end();
 
         if (this.intervalID) {
@@ -158,6 +167,8 @@ class GarminConnect {
 
     handlePong() {
         this.pingTimeout = false;
+        this.ready = true;
+        this.sendStatus();
     }
 
     sendPing() {
@@ -221,7 +232,6 @@ class GarminConnect {
         this.client.on('data', (data) => {
             try {
                 const dataObj = JSON.parse(data);
-                console.log('incoming message:', dataObj);
                 this.handleIncomingData(dataObj);
             } catch (e) {
                 console.log('error parsing incoming message', e);
@@ -247,13 +257,16 @@ class GarminConnect {
         this.client.write(SimMessages.get_success_message('SetClubType'));
     }
 
-    sendTestShot(ballData) {
-        this.ballData = ballData;
+    sendTestShot() {
         this.sendShot();
     }
 
-    sendLMStatus() {
+    sendTestStatus() {
         this.sendStatus();
+    }
+
+    setUnits(units) {
+        this.units = units;
     }
 
     setReady(ready) {
@@ -316,7 +329,7 @@ class GarminConnect {
             type: 'gsProShotStatus',
             ready: false,
         });
-        this.gsProConnect.launchBall(this.ballData, this.clubData);
+        this.gsProConnect.launchBall(this.units, this.ballData, this.clubData);
 
         if (this.client) {
             this.client.write(SimMessages.get_success_message('SendShot'));
@@ -345,7 +358,7 @@ class GarminConnect {
     }
 
     async sendStatus() {
-        this.gsProConnect.sendLaunchMonitorStatus(this.ready, this.ballDetected);
+        this.gsProConnect.sendLaunchMonitorStatus(this.units, this.ready, this.ballDetected);
     }
 }
 

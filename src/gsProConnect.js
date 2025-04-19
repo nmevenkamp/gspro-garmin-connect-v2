@@ -6,7 +6,6 @@ const TIMEOUT_MS = 5000
 class GsProConnect {
     constructor(ipcPort) {
         this.deviceID = ENV.DEVICE_ID
-        this.units = ENV.UNITS
         this.apiVersion = ENV.API_VERSION
         this.sendClubData = ENV.CLUB_DATA
 
@@ -115,17 +114,36 @@ class GsProConnect {
         this.socket.on('data', (data) => {
             try {
                 const dataObj = JSON.parse(data)
-                console.log('incoming message from gsPro:', dataObj)
+                this.handleIncomingData(dataObj);
             } catch (e) {
                 console.log('error parsing incoming gsPro message', e)
             }
         })
     }
 
-    sendLaunchMonitorStatus(lmReady, ballDetected) {
+    handleIncomingData(data) {
+        console.log('incoming message from gsPro:', data);
+
+        switch (data.Code) {
+            case 200:
+                this.ipcPort.postMessage({
+                    type: 'gsProShotReceived',
+                });
+                break;
+            case 202:
+                this.ipcPort.postMessage({
+                    type: 'gsProReady',
+                });
+                break;
+            default:
+                console.log('unknown code!', data.Code);
+        }
+    }
+
+    sendLaunchMonitorStatus(units, lmReady, ballDetected) {
         const APIData = {
             DeviceID: this.deviceID,
-            Units: this.units,
+            Units: units,
             ShotNumber: this.shotNumber,
             APIversion: this.apiVersion,
             ShotDataOptions: {
@@ -140,10 +158,10 @@ class GsProConnect {
         this.socket.write(JSON.stringify(APIData));
     }
 
-    launchBall(ballData, clubData) {
+    launchBall(units, ballData, clubData) {
         const APIData = {
             DeviceID: this.deviceID,
-            Units: this.units,
+            Units: units,
             ShotNumber: this.shotNumber,
             APIversion: this.apiVersion,
             BallData: ballData,

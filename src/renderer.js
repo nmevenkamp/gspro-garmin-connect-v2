@@ -20,6 +20,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const spinInput = document.querySelector('#spin')
             const hlaInput = document.querySelector('#hla')
             const carryInput = document.querySelector('#carry')
+            const unitsSelect = document.querySelector('#units');
 
             sendTestShotButton.addEventListener('click', () => {
                 if (!gsProConnected) {
@@ -27,10 +28,9 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
                 timeout = true
 
-
-
                 port.postMessage({
                     action: 'sendTestShot',
+                    units: unitsSelect.value,
                     ballData: {
                         Speed: ballSpeedInput.value,
                         SpinAxis: spinAxisInput.value,
@@ -41,25 +41,26 @@ window.addEventListener('DOMContentLoaded', () => {
                     }
                 })
 
-                sendTestShotButton.classList.remove('send-test-shot')
-                sendTestShotButton.classList.add('send-test-shot-disabled')
-                setTimeout(() => {
-                    sendTestShotButton.classList.remove('send-test-shot-disabled')
-                    sendTestShotButton.classList.add('send-test-shot')
-                    timeout = false
-                }, 8000)
+                // sendTestShotButton.classList.remove('send-test-shot')
+                // sendTestShotButton.classList.add('send-test-shot-disabled')
+                // setTimeout(() => {
+                //     sendTestShotButton.classList.remove('send-test-shot-disabled')
+                //     sendTestShotButton.classList.add('send-test-shot')
+                //     timeout = false
+                // }, 3000)
             })
 
-            const sendLMStatusButton = document.querySelector('#send-lm-status')
+            const sendTestStatusButton = document.querySelector('#send-test-status')
             const lmReadyCheckbox = document.querySelector('#lm-ready')
             const ballDetectedCheckbox = document.querySelector('#ball-detected')
-            sendLMStatusButton.addEventListener('click', () => {
+            sendTestStatusButton.addEventListener('click', () => {
                 if (!gsProConnected) {
                     return
                 }
 
                 port.postMessage({
-                    action: 'sendLMStatus',
+                    action: 'sendTestStatus',
+                    units:  unitsSelect.value,
                     lmReady: lmReadyCheckbox.checked,
                     ballDetected: ballDetectedCheckbox.checked,
                 })
@@ -96,6 +97,10 @@ window.addEventListener('DOMContentLoaded', () => {
                 setIPOptions(data.data, true)
             } else if (data.type === 'setIP') {
                 setIP(data.data)
+            } else if (data.type === 'gsProShotReceived') {
+                onGSProShotReceived();
+            } else if (data.type === 'gsProReady') {
+                onGSProReady();
             }
         }
     }
@@ -174,6 +179,18 @@ window.addEventListener('DOMContentLoaded', () => {
             statusColor.classList.add(COLOR_CLASSES[0])
             statusText.innerHTML = 'Disconnected'
         }
+    }
+
+    function onGSProShotReceived() {
+        const sendTestShotButton = document.querySelector('#send-test-shot')
+        sendTestShotButton.classList.remove('send-test-shot')
+        sendTestShotButton.classList.add('send-test-shot-disabled')
+    }
+
+    function onGSProReady() {
+        const sendTestShotButton = document.querySelector('#send-test-shot')
+        sendTestShotButton.classList.remove('send-test-shot-disabled')
+        sendTestShotButton.classList.add('send-test-shot')
     }
 
     function printMessage(system, message, level) {
